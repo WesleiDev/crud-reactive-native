@@ -5,23 +5,94 @@ import { View,
         FlatList,
         Alert,
         Image,
-        TouchableHighlight } from 'react-native';
+        TouchableHighlight,Button } from 'react-native';
+        
 
+const Realm = require('realm');
+const ClientSchema = {
+    name: 'Client',
+    primaryKey: 'id',
+    properties:{
+      id:{ type: 'string'},
+      name: { type: 'string' },
+      fone: { type: 'string' },
+      city: { type: 'string' },
+      avatar: { type: 'string' }
+    }
+  } 
 class ListClientComponent extends Component{
 
     constructor(props){
         super(props);
+        this.state = { clients: null};
     }
-
     _editar(item){
         // Alert.alert(item.name)
         const { navigate } = this.props.navigation;
-        navigate('Client', {client: item})
+        let data ={
+            id: item.id,
+            name: item.name,
+            city: item.city,
+            fone: item.fone,
+            avatar: item.avatar
+        }
+    
+        navigate('Client', {client: data})
     }
 
     _onPressButton(name){
         Alert.alert('Precionou o botão: '+name)
     }
+
+    consultar(){
+        let data = [];
+        // Realm.open({schema: [ClientSchema], schemaVersion: 9})
+        // .then(realm =>{
+        //     let clients = realm.objects('Client')
+
+        //     if(clients){
+        //         Alert.alert('Possui clients!')
+        //     }else{
+        //         Alert.alert('Não possui')
+        //     }
+
+        //     for(let clie of clients){
+        //     data.push(clie);
+        //     Alert.alert('Cliente: ', clie.name)
+        //     }
+
+        //     this.setState({
+        //         clients: data
+        //     })
+            
+        // })
+
+        let realm = new Realm({schema: [ClientSchema], schemaVersion: 9})
+        let clients = realm.objects('Client')
+            for(let clie of clients){
+            data.push(clie)
+            }
+
+            this.setState({
+                clients: data
+            })
+
+        console.log('VAIII')
+
+        // for(let clie of clients){
+        //     // data.push(clie);
+        // }
+        
+        // this.setState({
+        //                 clients: data
+        //      
+    }
+
+    componentDidMount(){
+       this.consultar(); 
+    }
+
+
 
     renderItem(item){
         return (                
@@ -37,19 +108,67 @@ class ListClientComponent extends Component{
                             <Text> { item.city } </Text>
                         </View> 
                     </View> 
-                </TouchableHighlight>                           
+                </TouchableHighlight> 
+                            
         )
     }
 
+    addClient(){
+        const { navigate } = this.props.navigation;
+        navigate('Client', {
+                                client: {
+                                        id: null,
+                                        name: '', 
+                                        city: '', 
+                                        fone:'',
+                                        avatar: 'https://cdn3.iconfinder.com/data/icons/business-avatar-1/512/10_avatar-512.png'
+                                    }
+                                })
+    }
+
     render(){
+
+        if(!this.state.clients){
+            return(
+                <View style={styles.container }>
+                    <TouchableHighlight style={ styles.btnAdd }
+                        onPress={ () => this.addClient() }
+                        underlayColor="white"
+                        >            
+                            <Text style={ styles.iconAdd } >+</Text>
+       
+                    </TouchableHighlight>
+                    <Button
+                title="Atualizar"
+                onPress={ () => this.consultar() }
+                >
+
+                </Button>  
+                </View>
+    
+                
+
+    
+            );
+        }
         return(
+            
             <View style={ styles.container }>
+            
                 <FlatList
-                    data = {data}
+                    data = {this.state.clients}
                     renderItem = { ({item}) => this.renderItem(item) }
                 >
 
                 </FlatList>
+                <TouchableHighlight style={ styles.btnAdd }
+                    onPress={ () => this.addClient() }
+                    underlayColor="white"
+                    >            
+                        <Text style={ styles.iconAdd } >+</Text>
+    
+                </TouchableHighlight>
+                
             </View>
         )
     }
@@ -59,7 +178,7 @@ class ListClientComponent extends Component{
 const styles = StyleSheet.create({
     container:{
         flex:1,
-        padding: 15        
+        padding: 15,
     },
     avatar:{
         width:50,
@@ -74,6 +193,22 @@ const styles = StyleSheet.create({
     contentListUser:{
         display:"flex", 
         flexDirection:"column" 
+    },
+    btnAdd:{
+        height: 50,
+        width:50,
+        backgroundColor:'#00897b',
+        borderRadius: 50,
+        marginLeft: 310,
+        bottom: 0,
+        position: 'absolute',
+        alignItems: 'center',
+        alignContent: 'center',
+        padding: 0,
+        zIndex: 10
+    },
+    iconAdd:{
+        fontSize:35
     }
 })
 

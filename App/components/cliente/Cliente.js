@@ -1,7 +1,20 @@
 import React, { Component } from 'react';
-import { View, Text , Alert, StyleSheet, TextInput, Button, Image} from 'react-native';
+import { View, Text , Alert, StyleSheet, TextInput, Button, Image, ToastAndroid} from 'react-native';
 import { createStackNavigator, createAppContainer} from 'react-navigation'
 
+const ClientSchema = {
+    name: 'Client',
+    primaryKey: 'id',
+    properties:{
+      id:{ type: 'string'},
+      name: { type: 'string' },
+      fone: { type: 'string' },
+      city: { type: 'string' },
+      avatar: { type: 'string' }
+    }
+  } 
+
+const Realm = require('realm');
 
 export default class ClientComponent extends Component{
 
@@ -11,25 +24,68 @@ export default class ClientComponent extends Component{
 
     constructor(props){
         super(props);
-        const { navigation } = this.props;
-        let client = navigation.getParam('client', 0);
-        client = { client }
-        this.state =   client  ;
+        this.state = { client: null };
+        
     
     }
 
-    // componentDidMount(){
-    //     Alert.alert('Carregou o did')
-    // }
+    componentDidMount(){
+        const { navigation } = this.props;
+        let client = navigation.getParam('client', 0);
+        //Alert.alert('Carregou: '+client)
+        data = { client }
+        this.setState({
+            client: data.client
+        })
+        
+        
+    }
 
     _salvar(){
         // Alert.alert('Salvar')
+        let realm = new Realm({schema: [ClientSchema], schemaVersion: 9});
+
+        realm.write(() =>{
+            try{
+                let {client} = this.state;
+                let updateCLient = client.id !== null; 
+                if(!client.id){
+                    client.id = Math.random(36).toString().substr(2);
+                }else{
+
+                }
+
+                console.log('Cliente que vai ser salvo: ', client);
+                console.log('UPDATE CLIENTE: ', updateCLient)
+                 let teste = realm.create('Client', client , updateCLient)
+                 console.log('Client Salv: ', teste)
+
+                 let clients = realm.objects('Client')
+
+                for(let clie of clients){
+                    console.log('CLIENTE: ', clie)
+                    
+                }
+                
+                
+            }catch(e){
+                console.log('ERRO AO SALVAR: ', e)
+                Alert.alert('Erro ao salvar cliente: '+ e)
+            }
+            
+        })
+
+        
         const { navigate } = this.props.navigation;
         navigate('Home')
     }
 
     render(){
-
+  
+        if(!this.state.client){
+            return (<View></View>);
+        }
+    
         return(
             <View style={ styles.container }>
                 <View style={ styles.conentAvatar }>
