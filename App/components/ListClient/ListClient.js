@@ -6,7 +6,8 @@ import { View,
         Alert,
         Image,
         TouchableHighlight,Button } from 'react-native';
-import { createTemplateObject } from 'realm';
+import { NavigationEvents} from 'react-navigation';
+
         
 
 const Realm = require('realm');
@@ -38,7 +39,7 @@ class ListClientComponent extends Component{
             avatar: item.avatar
         }
     
-        navigate('Client', {client: data})
+        navigate('Client', {client: data});
     }
 
     _onPressButton(name){
@@ -62,7 +63,7 @@ class ListClientComponent extends Component{
        this.consultar(); 
     }
 
-
+    componen
 
     renderItem(item){
         return (                
@@ -133,6 +134,8 @@ class ListClientComponent extends Component{
         if(!this.state.clients){
             return(
                 <View style={styles.container }>
+                <NavigationEvents
+                    onDidFocus={payload => this.consultar()}    />
                     <TouchableHighlight style={ styles.btnAdd }
                         onPress={ () => this.addClient() }
                         underlayColor="white"
@@ -156,6 +159,8 @@ class ListClientComponent extends Component{
         return(
             
             <View style={ styles.container }>
+            <NavigationEvents
+            onDidFocus={payload => this.consultar()}    />
             
                 <FlatList
                     data = {this.state.clients}
