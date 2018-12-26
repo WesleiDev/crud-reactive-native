@@ -5,8 +5,11 @@ import { View,
         FlatList,
         Alert,
         Image,
-        TouchableHighlight,Button } from 'react-native';
+        TouchableHighlight,
+        Button,
+        TextInput } from 'react-native';
 import { NavigationEvents} from 'react-navigation';
+import { Object } from 'realm';
 
         
 
@@ -46,17 +49,30 @@ class ListClientComponent extends Component{
         Alert.alert('Precionou o botão: '+name)
     }
 
-    consultar(){
+    consultar(text = ''){
         let data = [];
 
-        let realm = new Realm({schema: [ClientSchema], schemaVersion: 9})
-        let clients = realm.objects('Client')
-            for(let i = 0; i < clients.length; i++){
-                data.push(clients[i])
+        // let realm = new Realm({schema: [ClientSchema], schemaVersion: 9})
+        Realm.open({schema: [ClientSchema], schemaVersion: 9})
+        .then(realm => {
+            let clients = realm.objects('Client')
+            let results;
+            
+            if(text !== ''){
+                results = clients.filtered(`name CONTAINS[c] "${text}" `);
+            }else{
+                results = clients;
+            }
+    
+            for(let i = 0; i < results.length; i++){
+                data.push(results[i])
             }
             this.setState({
                 clients: data
             })
+        })
+        
+            
     }
 
     componentDidMount(){
@@ -161,7 +177,9 @@ class ListClientComponent extends Component{
             <View style={ styles.container }>
             <NavigationEvents
             onDidFocus={payload => this.consultar()}    />
-            
+            <TextInput placeholder="Consultar ..."
+                onChangeText={ (text)=> this.consultar(text) }
+            />
                 <FlatList
                     data = {this.state.clients}
                     renderItem = { ({item}) => this.renderItem(item) }
@@ -185,7 +203,7 @@ class ListClientComponent extends Component{
 const styles = StyleSheet.create({
     container:{
         flex:1,
-        padding: 15,
+        padding: 15
     },
     avatar:{
         width:50,
@@ -207,7 +225,7 @@ const styles = StyleSheet.create({
         backgroundColor:'#00897b',
         borderRadius: 50,
         marginLeft: 310,
-        bottom: 0,
+        bottom: 15,
         position: 'absolute',
         alignItems: 'center',
         alignContent: 'center',
