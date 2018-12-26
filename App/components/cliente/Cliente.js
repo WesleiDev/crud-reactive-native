@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text , Alert, StyleSheet, TextInput, Button, Image, ToastAndroid} from 'react-native';
+import { View, Text , Alert, StyleSheet, TextInput, Button, Image} from 'react-native';
 import { createStackNavigator, createAppContainer} from 'react-navigation'
 
 const ClientSchema = {
@@ -32,7 +32,7 @@ export default class ClientComponent extends Component{
     componentDidMount(){
         const { navigation } = this.props;
         let client = navigation.getParam('client', 0);
-        //Alert.alert('Carregou: '+client)
+    
         data = { client }
         this.setState({
             client: data.client
@@ -51,21 +51,9 @@ export default class ClientComponent extends Component{
                 let updateCLient = client.id !== null; 
                 if(!client.id){
                     client.id = Math.random(36).toString().substr(2);
-                }else{
-
                 }
 
-                console.log('Cliente que vai ser salvo: ', client);
-                console.log('UPDATE CLIENTE: ', updateCLient)
-                 let teste = realm.create('Client', client , updateCLient)
-                 console.log('Client Salv: ', teste)
-
-                 let clients = realm.objects('Client')
-
-                for(let clie of clients){
-                    console.log('CLIENTE: ', clie)
-                    
-                }
+                realm.create('Client', client , updateCLient)
                 
                 
             }catch(e){

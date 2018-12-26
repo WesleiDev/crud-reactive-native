@@ -31,23 +31,7 @@ const ClientSchema = {
   }
 
   componentDidMount(){
-    Realm.open({ schema:[ClientSchema], path:'crud.react' , schemaVersion:9})
-      .then(realm =>{
-        console.log('REALMMMM', realm)
-        try{
-          let clients = realm.objects('Client')
-          for(let clie of clients){
-            console.log('CLIENTE: ', clie)
-        }
 
-        console.log('Clients: ',clients)
-        }catch(e){
-          console.log('Erro ao consultar clientes: ', e)
-        }
-        
-        
-
-      })
   } 
 
 

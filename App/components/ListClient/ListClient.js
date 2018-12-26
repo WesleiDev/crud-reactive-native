@@ -6,6 +6,7 @@ import { View,
         Alert,
         Image,
         TouchableHighlight,Button } from 'react-native';
+import { createTemplateObject } from 'realm';
         
 
 const Realm = require('realm');
@@ -46,46 +47,15 @@ class ListClientComponent extends Component{
 
     consultar(){
         let data = [];
-        // Realm.open({schema: [ClientSchema], schemaVersion: 9})
-        // .then(realm =>{
-        //     let clients = realm.objects('Client')
-
-        //     if(clients){
-        //         Alert.alert('Possui clients!')
-        //     }else{
-        //         Alert.alert('Não possui')
-        //     }
-
-        //     for(let clie of clients){
-        //     data.push(clie);
-        //     Alert.alert('Cliente: ', clie.name)
-        //     }
-
-        //     this.setState({
-        //         clients: data
-        //     })
-            
-        // })
 
         let realm = new Realm({schema: [ClientSchema], schemaVersion: 9})
         let clients = realm.objects('Client')
-            for(let clie of clients){
-            data.push(clie)
+            for(let i = 0; i < clients.length; i++){
+                data.push(clients[i])
             }
-
             this.setState({
                 clients: data
             })
-
-        console.log('VAIII')
-
-        // for(let clie of clients){
-        //     // data.push(clie);
-        // }
-        
-        // this.setState({
-        //                 clients: data
-        //      
     }
 
     componentDidMount(){
@@ -98,6 +68,7 @@ class ListClientComponent extends Component{
         return (                
                 <TouchableHighlight
                     onPress={ () => this._editar(item)}
+                    onLongPress={ () => this.longPress(item) }
                     underlayColor="white"
                 >
                    <View style={ styles.listUser }>
@@ -126,6 +97,37 @@ class ListClientComponent extends Component{
                                 })
     }
 
+    longPress(item){
+        Alert.alert(
+            'Remover cliente',
+            'Deseja remover este cliente ?',
+            [
+                {text:'OK', onPress: () => this.removeClient(item)},
+                {text: 'Cancel'}
+            ]
+        )
+
+    }
+
+    removeClient(item){
+        try{
+        
+            let realm = new Realm({schema: [ClientSchema], schemaVersion: 9})
+            realm.write(() =>{
+                let clients = realm.objects('Client')
+                let deleteClient = clients.filtered(`id = "${item.id}" `)    
+    
+                realm.delete(deleteClient[0]);
+                this.consultar();
+            
+            })
+
+        }catch(e){
+            Alert.alert('Erro', e)
+        }
+        
+
+    }
     render(){
 
         if(!this.state.clients){
@@ -212,14 +214,14 @@ const styles = StyleSheet.create({
     }
 })
 
-const data = [
-    {name:"Weslei ferreira da silva", fone: "(44) 99936-6810", city: "Maringá", avatar:"https://cdn2.iconfinder.com/data/icons/professions/512/user_boy_avatar-512.png"},
-    {name:"Juliano Barbosa ferraz", fone: "(44) 88965-3654", city: "Sarandi", avatar:"https://previews.123rf.com/images/robuart/robuart1703/robuart170300728/73855318-emotion-avatar-man-happy-successful-face-vector.jpg"},
-    {name:"Guilherme Algusto", fone: "(44) 7987-5262", city: "Marialva", avatar:"https://cdn.dribbble.com/users/35310/screenshots/5319659/avatar-black-girl-2_64px.png"},
-    {name:"Amando dos santos", fone: "(44) 1121-6548", city: "Maringá", avatar:"https://cdn1.iconfinder.com/data/icons/ninja-things-1/720/ninja-background-512.png"},
-    {name:"Pedro amado", fone: "(44) 5214-9879", city: "Iguatemi", avatar:"https://cdn4.iconfinder.com/data/icons/avatar-vol-1-3/512/1-512.png"},
+// const data = [
+//     {name:"Weslei ferreira da silva", fone: "(44) 99936-6810", city: "Maringá", avatar:"https://cdn2.iconfinder.com/data/icons/professions/512/user_boy_avatar-512.png"},
+//     {name:"Juliano Barbosa ferraz", fone: "(44) 88965-3654", city: "Sarandi", avatar:"https://previews.123rf.com/images/robuart/robuart1703/robuart170300728/73855318-emotion-avatar-man-happy-successful-face-vector.jpg"},
+//     {name:"Guilherme Algusto", fone: "(44) 7987-5262", city: "Marialva", avatar:"https://cdn.dribbble.com/users/35310/screenshots/5319659/avatar-black-girl-2_64px.png"},
+//     {name:"Amando dos santos", fone: "(44) 1121-6548", city: "Maringá", avatar:"https://cdn1.iconfinder.com/data/icons/ninja-things-1/720/ninja-background-512.png"},
+//     {name:"Pedro amado", fone: "(44) 5214-9879", city: "Iguatemi", avatar:"https://cdn4.iconfinder.com/data/icons/avatar-vol-1-3/512/1-512.png"},
     
-]
+// ]
 
 
 export default ListClientComponent
